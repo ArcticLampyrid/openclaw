@@ -40,6 +40,7 @@ describe("iconForTab", () => {
       { tab: "appearance", icon: "spark" },
       { tab: "automation", icon: "terminal" },
       { tab: "infrastructure", icon: "globe" },
+      { tab: "aiAgents", icon: "brain" },
       { tab: "debug", icon: "bug" },
       { tab: "logs", icon: "scrollText" },
     ] as const;

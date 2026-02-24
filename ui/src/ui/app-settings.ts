@@ -258,7 +258,8 @@ export async function refreshActiveTab(host: SettingsHost) {
     host.tab === "communications" ||
     host.tab === "appearance" ||
     host.tab === "automation" ||
-    host.tab === "infrastructure"
+    host.tab === "infrastructure" ||
+    host.tab === "aiAgents"
   ) {
     await loadConfigSchema(host as unknown as OpenClawApp);
     await loadConfig(host as unknown as OpenClawApp);

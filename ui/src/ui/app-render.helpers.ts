@@ -418,6 +418,44 @@ function currentThemeIcon(theme: ThemeName): string {
   return THEME_OPTIONS.find((o) => o.id === theme)?.icon ?? "🎨";
 }
 
+export function renderTopbarThemeModeToggle(state: AppViewState) {
+  const modeIcon = (mode: ThemeMode) => {
+    if (mode === "system") {
+      return icons.monitor;
+    }
+    if (mode === "light") {
+      return icons.sun;
+    }
+    return icons.moon;
+  };
+
+  const applyMode = (mode: ThemeMode, e: Event) => {
+    if (mode === state.themeMode) {
+      return;
+    }
+    state.setThemeMode(mode, { element: e.currentTarget as HTMLElement });
+  };
+
+  return html`
+    <div class="topbar-theme-mode" role="group" aria-label="Color mode">
+      ${THEME_MODE_OPTIONS.map(
+        (opt) => html`
+          <button
+            type="button"
+            class="topbar-theme-mode__btn ${opt.id === state.themeMode ? "topbar-theme-mode__btn--active" : ""}"
+            title=${opt.label}
+            aria-label="Color mode: ${opt.label}"
+            aria-pressed=${opt.id === state.themeMode}
+            @click=${(e: Event) => applyMode(opt.id, e)}
+          >
+            ${modeIcon(opt.id)}
+          </button>
+        `,
+      )}
+    </div>
+  `;
+}
+
 export function renderThemeToggle(state: AppViewState) {
   const toggleOpen = (e: Event) => {
     const orb = (e.currentTarget as HTMLElement).closest(".theme-orb");
@@ -474,8 +512,6 @@ export function renderThemeToggle(state: AppViewState) {
 export function renderSidebarThemeSelector(state: AppViewState) {
   const isCollapsed = state.settings.navCollapsed;
   const currentTheme = THEME_OPTIONS.find((opt) => opt.id === state.theme) ?? THEME_OPTIONS[0];
-  const currentMode =
-    THEME_MODE_OPTIONS.find((opt) => opt.id === state.themeMode) ?? THEME_MODE_OPTIONS[0];
 
   const applyTheme = (theme: ThemeName, e: Event) => {
     if (theme === state.theme) {
@@ -483,14 +519,6 @@ export function renderSidebarThemeSelector(state: AppViewState) {
     }
     const element = e.currentTarget as HTMLElement;
     state.setTheme(theme, { element });
-  };
-
-  const applyThemeMode = (mode: ThemeMode, e: Event) => {
-    if (mode === state.themeMode) {
-      return;
-    }
-    const element = e.currentTarget as HTMLElement;
-    state.setThemeMode(mode, { element });
   };
 
   const renderThemeSegmented = (opts?: { onPick?: (e: Event) => void }) => html`
@@ -508,27 +536,6 @@ export function renderSidebarThemeSelector(state: AppViewState) {
             }}
           >
             ${opt.label}
-          </button>
-        `,
-      )}
-    </div>
-  `;
-
-  const renderThemeModeSegmented = (opts?: { onPick?: (e: Event) => void }) => html`
-    <div class="theme-selector__segmented" role="group" aria-label="Theme mode">
-      ${THEME_MODE_OPTIONS.map(
-        (opt) => html`
-          <button
-            class="theme-selector__seg-btn ${opt.id === state.themeMode ? "theme-selector__seg-btn--active" : ""}"
-            title=${opt.label}
-            aria-label="Theme mode: ${opt.label}"
-            aria-pressed=${opt.id === state.themeMode}
-            @click=${(e: Event) => {
-              applyThemeMode(opt.id, e);
-              opts?.onPick?.(e);
-            }}
-          >
-            ${opt.short}
           </button>
         `,
       )}
@@ -560,27 +567,16 @@ export function renderSidebarThemeSelector(state: AppViewState) {
       <div class="theme-selector theme-selector--collapsed">
         <button
           class="theme-selector__trigger"
-          title="${t("common.theme")}: ${currentTheme.label} · ${currentMode.label}"
-          aria-label="${t("common.theme")}: ${currentTheme.label}, mode ${currentMode.label}"
+          title="${t("common.theme")}: ${currentTheme.label}"
+          aria-label="${t("common.theme")}: ${currentTheme.label}"
           @click=${toggleOpen}
         >
           <span>${currentTheme.label.slice(0, 1)}</span>
-          <span class="theme-selector__trigger-sep">/</span>
-          <span>${currentMode.label.slice(0, 1)}</span>
         </button>
         <div class="theme-selector__popover">
           <div class="theme-selector__group">
             <div class="theme-selector__label">Theme</div>
             ${renderThemeSegmented({
-              onPick: (e: Event) => {
-                const sel = (e.currentTarget as HTMLElement).closest(".theme-selector");
-                sel?.classList.remove("theme-selector--open");
-              },
-            })}
-          </div>
-          <div class="theme-selector__group">
-            <div class="theme-selector__label">Mode</div>
-            ${renderThemeModeSegmented({
               onPick: (e: Event) => {
                 const sel = (e.currentTarget as HTMLElement).closest(".theme-selector");
                 sel?.classList.remove("theme-selector--open");
@@ -598,11 +594,7 @@ export function renderSidebarThemeSelector(state: AppViewState) {
         <div class="theme-selector__label">Theme</div>
         ${renderThemeSegmented()}
       </div>
-      <div class="theme-selector__group">
-        <div class="theme-selector__label">Mode</div>
-        ${renderThemeModeSegmented()}
-      </div>
-      <span class="theme-selector__current">${currentTheme.label} · ${currentMode.label}</span>
+      <span class="theme-selector__current">${currentTheme.label}</span>
     </div>
   `;
 }
