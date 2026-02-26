@@ -34,6 +34,7 @@ export async function fetchWithWebToolsNetworkGuard(
     ...rest,
     timeoutMs: resolveTimeoutMs({ timeoutMs: rest.timeoutMs, timeoutSeconds }),
     proxy: "env",
+    policy: WEB_TOOLS_TRUSTED_NETWORK_SSRF_POLICY,
   });
 }
 
